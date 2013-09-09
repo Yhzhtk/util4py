@@ -5,8 +5,6 @@ Created on 2013-9-8
 @author: gudh
 '''
 
-import Image
-
 start_pos = (5, 222) # 开始的位置
 block_size = (67, 67) # 块大小
 rel_pos = (33, 28) # 相对块头位置
@@ -19,8 +17,8 @@ colors = (
 (247, 69, 95), # 红
 (173, 235, 82) # 绿
 )
-colornames = ('白', '紫', '黄', '土', '蓝', '红', '绿')
-ax = (30, 30, 30) # 允许的误差
+colornames = (u'ba', u'zh', u'hu', u'tu', u'la', u'ho', u'lv')
+ax = (35, 35, 35) # 允许的误差
 
 
 def get_pix(img):
@@ -29,12 +27,18 @@ def get_pix(img):
     n = 222 + 67
     x = 67
     for i in range(7):
-        print "c%d = %s" % (i + 1, img.getpixel((m + i * x + 33, n + 20))[0:3])
+        print "c%d = %s" % (i + 1, get_color(img, m + i * x + 33, n + 20)[0:3])
 
 def get_pos(i, j):
     '''获取块内判断的点'''
     x = start_pos[0] + i * block_size[0] + rel_pos[0]
     y = start_pos[1] + j * block_size[1] + rel_pos[1]
+    return (x, y)
+
+def get_rc_pos(rc):
+    '''获取rc的点，注意横纵是反的'''
+    x = start_pos[0] + rc[1] * block_size[0] + rel_pos[0]
+    y = start_pos[1] + rc[0] * block_size[1] + rel_pos[1]
     return (x, y)
 
 def get_block(i, j):
@@ -47,7 +51,7 @@ def get_block(i, j):
 
 def similar_color(p, color):
     '''判断是否是相似'''
-    print p, color
+    #print p, color
     for i in range(3):
         if abs(p[i] - color[i]) >= ax [i]:
             return False
@@ -56,21 +60,30 @@ def similar_color(p, color):
 def get_color(img, i, j):
     '''获取像素点的颜色'''
     p = get_pos(i, j)
-    print p
+    #print p
     index = 0
+    color = img.getRawPixel(p[0], p[1])[1:]
     for index in range(len(colors)):
-        if similar_color(img.getpixel(p), colors[index]):
+        if similar_color(color, colors[index]):
             return index
     return -1
 
 def get_pic_info(img):
     '''获取像素矩阵'''
     mat = []
+    blank_c = 0
     for j in range(7):
         mx = [] 
         for i in range(7):
-            mx.append(colornames[get_color(img, i, j)])
+            c = get_color(img, i, j)
+            mx.append(c)
+            if c == -1:
+                blank_c += 1
         mat.append(mx)
+    print_mat(mat)
+    if(blank_c > 7):
+        print "blank is %d, return None" % blank_c
+        mat = None
     return mat
 
 def cut_all(img):
@@ -81,12 +94,22 @@ def cut_all(img):
             im = img.crop(b)
             im.save("c:/m/%d%d.jpg" % (i, j), "JPEG")
 
-if __name__ == "main":
-    img = Image.open(r"c:/m.png")
-    mat = get_pic_info(img)
+def print_mat(mat):
+    '''输出结果矩阵'''
+    print ".", "|", "0   1   2   3   4   5   6"
+    i = 0
     for m in mat:
+        print i,"|",
+        i += 1
         for n in m:
-            print n,
+            if n < 0:
+                print "No",
+            else:
+                print colornames[n], 
         print 
 
+if __name__ == "main":
+    import Image
+    img = Image.open(r"c:/m.png")
+    mat = get_pic_info(img)
 
