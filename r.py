@@ -16,6 +16,9 @@ while True:
     end = time.clock()
     print "SnapShot Time:", end - start
     
+    if not result:
+        continue
+    
     step = run.get_step(result)
     if not step:
         continue
@@ -23,6 +26,6 @@ while True:
     start = time.clock()
     if step:
         for s in step:
-            device.drag(s[0], s[1], 0.1, 1)
+            device.drag(s[0], s[1], 0.001, 1)
     end = time.clock()
     print "Drag Time:", end - start

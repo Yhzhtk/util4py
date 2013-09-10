@@ -18,7 +18,7 @@ def get_avail(mat, arounds, compare_pos):
     color = get_color(mat, compare_pos)
     for roun in arounds:
         c1 = get_color(mat, roun[1])
-        if c1 and c1 == color:
+        if (not c1 == None) and c1 == color:
             res.append(roun)
     return res
 
@@ -32,14 +32,14 @@ def get_middle(pos1, pos2, mat):
         if p1[0] > p2[0]:
             p1 = pos2
             p2 = pos1
-        arounds.append(((p1[0] + 1, p1[1]), (p1[0] + 1, p1[1] - 1), (p1[1], p1[1] - 1)))
-        arounds.append(((p1[0] + 1, p1[1]), (p1[0] + 1, p1[1] + 1), (p1[1], p1[1] + 1)))
+        arounds.append(((p1[0] + 1, p1[1]), (p1[0] + 1, p1[1] - 1), ((p2[0], p1[1]), (p1[0] + 1, p1[1] - 1))))
+        arounds.append(((p1[0] + 1, p1[1]), (p1[0] + 1, p1[1] + 1), ((p2[0], p1[1]), (p1[0] + 1, p1[1] + 1))))
     elif pos1[0] == pos2[0]: # 横排
         if p1[1] > p2[1]:
             p1 = pos2
             p2 = pos1
-        arounds.append(((p1[0], p1[1] + 1), (p1[0] - 1, p1[1] + 1), (p1[1], p1[1] + 1, p2[1])))
-        arounds.append(((p1[0], p1[1] + 1), (p1[0] + 1, p1[1] + 1), (p1[1], p1[1] + 1, p2[1])))
+        arounds.append(((p1[0], p1[1] + 1), (p1[0] - 1, p1[1] + 1), ((p1[0], p1[1]), (p1[0], p1[1] + 1), (p2[0], p2[1]))))
+        arounds.append(((p1[0], p1[1] + 1), (p1[0] + 1, p1[1] + 1), ((p1[0], p1[1]), (p1[0] + 1, p1[1] + 1), (p2[0], p2[1]))))
     
     return get_avail(mat, arounds, pos1)
 
@@ -58,28 +58,28 @@ def get_arround(pos1, pos2, mat):
             p2 = pos1
         # 上边
         if p1[0] > 0:
-            arounds.append(((p1[0] - 1, p1[1]), (p1[0] - 1, p1[1] - 1), (p1[1], p1[1] - 1)))
-            arounds.append(((p1[0] - 1, p1[1]), (p1[0] - 1, p1[1] + 1), (p1[1], p1[1] + 1)))
-            arounds.append(((p1[0] - 1, p1[1]), (p1[0] - 2, p1[1]), (p1[1],)))
+            arounds.append(((p1[0] - 1, p1[1]), (p1[0] - 1, p1[1] - 1), ((p2[0], p1[1]), (p1[0] - 1, p1[1] - 1))))
+            arounds.append(((p1[0] - 1, p1[1]), (p1[0] - 1, p1[1] + 1), ((p2[0], p1[1]), (p1[0] - 1, p1[1] + 1))))
+            arounds.append(((p1[0] - 1, p1[1]), (p1[0] - 2, p1[1]), ((p2[0], p1[1]),)))
         # 下边
         if p2[0] < size[0] - 1:
-            arounds.append(((p2[0] + 1, p2[1]), (p2[0] + 1, p2[1] - 1), (p1[1], p1[1] - 1)))
-            arounds.append(((p2[0] + 1, p2[1]), (p2[0] + 1, p2[1] + 1), (p1[1], p1[1] + 1)))
-            arounds.append(((p2[0] + 1, p2[1]), (p2[0] + 2, p2[1]), (p1[1],)))
+            arounds.append(((p2[0] + 1, p2[1]), (p2[0] + 1, p2[1] - 1), ((p2[0] + 1, p1[1]), (p2[0] + 1, p1[1] - 1))))
+            arounds.append(((p2[0] + 1, p2[1]), (p2[0] + 1, p2[1] + 1), ((p2[0] + 1, p1[1]), (p2[0] + 1, p1[1] + 1))))
+            arounds.append(((p2[0] + 1, p2[1]), (p2[0] + 2, p2[1]), ((p2[0] + 2, p1[1]),)))
     elif pos1[0] == pos2[0]: # 横排
         if p1[1] > p2[1]:
             p1 = pos2
             p2 = pos1
         # 左边
         if p1[1] > 0:
-            arounds.append(((p1[0], p1[1] - 1), (p1[0] - 1, p1[1] - 1), (p1[1] - 1, p1[1], p2[1])))
-            arounds.append(((p1[0], p1[1] - 1), (p1[0] + 1, p1[1] - 1), (p1[1] - 1, p1[1], p2[1])))
-            arounds.append(((p1[0], p1[1] - 1), (p1[0], p1[1] - 2), (p1[1] - 2,p1[1] - 1, p1[1], p2[1])))
+            arounds.append(((p1[0], p1[1] - 1), (p1[0] - 1, p1[1] - 1), ((p1[0], p1[1] - 1), (p1[0], p1[1]), (p1[0], p2[1]))))
+            arounds.append(((p1[0], p1[1] - 1), (p1[0] + 1, p1[1] - 1), ((p1[0] + 1, p1[1] - 1), (p1[0], p1[1]), (p1[0], p2[1]))))
+            arounds.append(((p1[0], p1[1] - 1), (p1[0], p1[1] - 2), ((p1[0], p1[1] - 2), (p1[0], p1[1] - 1), (p1[0], p1[1]), (p1[0], p2[1]))))
         # 右边
         if p2[1] < size[1] - 1:
-            arounds.append(((p2[0], p2[1] + 1), (p2[0] - 1, p2[1] + 1), (p1[1], p2[1], p2[1] + 1)))
-            arounds.append(((p2[0], p2[1] + 1), (p2[0] + 1, p2[1] + 1), (p1[1], p2[1], p2[1] + 1)))
-            arounds.append(((p2[0], p2[1] + 1), (p2[0], p2[1] + 2), (p1[1], p2[1], p2[1] + 1, p2[1] + 2)))
+            arounds.append(((p2[0], p2[1] + 1), (p2[0] - 1, p2[1] + 1), ((p1[0], p1[1]),(p1[0], p2[1]),(p1[0], p2[1] + 1))))
+            arounds.append(((p2[0], p2[1] + 1), (p2[0] + 1, p2[1] + 1), ((p1[0], p1[1]),(p1[0],  p2[1]),(p1[0] + 1,  p2[1] + 1))))
+            arounds.append(((p2[0], p2[1] + 1), (p2[0], p2[1] + 2), ((p1[0], p1[1]), (p1[0], p2[1]), (p1[0], p2[1] + 1),(p1[0], p2[1] + 2))))
             
     return get_avail(mat, arounds, pos1)
 
@@ -90,11 +90,11 @@ def calculate_step(mat):
     hs = len(mat[0])
     
     res = []
-    # 从右往左，从下往上
-    for i in range(ws - 1, -1, -1):
+    # 从下往上，从右往左
+    for j in range(hs):
         last = None
         last2 = None
-        for j in range(hs - 1, -1, -1):
+        for i in range(ws):
             if last:
                 m1 = mat[last[0]][last[1]]
                 m2 = mat[i][j]
@@ -113,12 +113,11 @@ def calculate_step(mat):
             else:
                 last2 = last
                 last = (i, j)
-    
-    # 从下往上，从右往左
-    for j in range(hs - 1, -1, -1):
+    # 从右往左，从下往上
+    for i in range(ws):
         last = None
         last2 = None
-        for i in range(ws - 1, -1, -1):
+        for j in range(hs):
             if last:
                 m1 = mat[last[0]][last[1]]
                 m2 = mat[i][j]
@@ -142,20 +141,38 @@ def calculate_step(mat):
         res = []
     return res
 
+def is_down_ok(ys, needlocs):
+    '''是否在下面，如果在下面可以多个运行'''
+    for loc in needlocs:
+        if ys.has_key(loc[1]) and ys[loc[1]] >= loc[0]:
+            return False
+    return True
+
+def add_ys(ys, needlocs):
+    '''添加合并,将相同y更大的x存入'''
+    for loc in needlocs:
+        if ys.has_key(loc[1]):
+            if ys[loc[1]] < loc[0]:
+                ys[loc[1]] = loc[0]
+        else:
+            ys[loc[1]] = loc[0]
+
 def get_optimal(avails):
     '''获取一张图最优的步骤集，有顺序的'''
     res = []
-    ys = []
+    ys = {}
+    # 先添加同含多个的
     for ava in avails:
         if avails.count(ava) > 1:
-            if ava[0:2] in res:
+            if not is_down_ok(ys, ava[2]):
                 continue
             res.append(ava[0 : 2])
-            ys.extend(ava[2])
+            add_ys(ys, ava[2])
     for ava in avails:
-        if len([i for i in ava[2] if i in ys]) > 0:
+        # 如果x小于范围，则跳过
+        if not is_down_ok(ys, ava[2]):
             continue
         res.append(ava[0 : 2])
-        ys.extend(ava[2])
+        add_ys(ys, ava[2])
     return res
 

@@ -63,6 +63,7 @@ def get_color(img, i, j):
     #print p
     index = 0
     color = img.getRawPixel(p[0], p[1])[1:]
+    #color = img.getpixel(p)
     for index in range(len(colors)):
         if similar_color(color, colors[index]):
             return index
