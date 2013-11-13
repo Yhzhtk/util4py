@@ -29,6 +29,18 @@ matrix = [
           [2, 6, 0, 8, 7, 0, 4, 1, 0]
           ]
 
+matrix = [
+          [8, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 6, 0, 0, 0, 0, 0, 2],
+          [3, 0, 0, 7, 0, 0, 0, 8, 6],
+          [4, 5, 0, 0, 0, 0, 6, 0, 0],
+          [0, 0, 9, 0, 8, 5, 0, 2, 0],
+          [0, 0, 2, 6, 3, 0, 0, 0, 0],
+          [0, 7, 4, 0, 0, 2, 0, 0, 0],
+          [0, 0, 0, 0, 9, 0, 0, 0, 8],
+          [0, 0, 3, 5, 0, 0, 0, 7, 0]
+          ]
+
 def print_matrix():
     for line in matrix:
         print line
@@ -82,8 +94,12 @@ def step():
 if __name__ == '__main__':
     count = 0
     while True:
-        print_matrix()
+        # print_matrix()
         count += 1
-        raw_input('===========: ' + str(count))
+        x = raw_input(str(count) + ' ===========: ' )
+        xm = x.split(" ")
+        if len(xm) == 3:
+            matrix[int(xm[0])][int(xm[1])] = int(xm[2])
+            print_matrix()
         step()
     
