@@ -104,5 +104,28 @@ def get_code_str(s, ts="utf-8", cs="utf-8"):
     '''获取指定编码'''
     return str(s).decode(ts).encode(cs)
 
+def deal(int, out):
+    '''处理有的行有公司有的没有的情况'''
+    infile = open(int, "r")
+    lines = infile.readlines()
+    infile.close()
+    out = open(out, "a")
+    for l in lines:
+        ls = l.split("\t")
+        ls.reverse()
+        tc = len(ls) / 6
+        print tc
+        linec = 7
+        if tc > 1:
+            linec = 6
+        for i in xrange(tc):
+            for i in range(linec):
+                out.write(ls.pop())
+                out.write("\t")
+                out.flush()
+            out.write("\n")
+    out.close()
+
+
 nt()
 
