@@ -1,6 +1,5 @@
-
 #coding=utf-8
-import re,types
+import re
 
 def regex_one(regex, content, group=1):
     '''正则查找第一个匹配返回指定分组'''
@@ -73,41 +72,51 @@ def merge_map(map1, map2):
 
 def write_map(fname, imap):
     ifile = open(fname, "w")
-    for k in imap.keys():
+    keys = imap.keys()
+    keys.sort()
+    for k in keys:
         ifile.write(k)
         ifile.write("\t")
         ifile.write(str(imap[k]))
         ifile.write("\n")
     ifile.close()
 
-def analy_search(fname1, fname2):
-    content1 = open(fname1, "r").read()
-    itime1 = parse_time(content1)
-    kt_map1 = parse_kt_map(content1)
-    po_map1 = parse_po_map(content1)
+def analy_search(content):
+    itime1 = parse_time(content)
+    kt_map1 = parse_kt_map(content)
+    po_map1 = parse_po_map(content)
+    return [itime1, kt_map1, po_map1]
 
-    print "1 complete"
+def analy_search_file(fname):
+    content = open(fname, "r").read();
+    itime1 = parse_time(content)
+    kt_map1 = parse_kt_map(content)
+    po_map1 = parse_po_map(content)
+    return [itime1, kt_map1, po_map1]
 
-    content2 = open(fname2, "r").read()
-    itime2 = parse_time(content2)
-    kt_map2 = parse_kt_map(content2)
-    po_map2 = parse_po_map(content2)
+def analy_all_search(content1, content2):
+    res1 = analy_search(content1)
+    res2 = analy_search(content2)
+    all_kt = merge_map(res1[1], res2[1])
+    all_po = merge_map(res1[2], res2[2])
+    return [all_kt, all_po]
 
-    print "2 complete"
+def analy_all_search_file(fname1, fname2):
+    res1 = analy_search_file(fname1)
+    res2 = analy_search_file(fname2)
+    all_kt = merge_map(res1[1], res2[1])
+    all_po = merge_map(res1[2], res2[2])
+    return [all_kt, all_po]
 
-    all_kt = merge_map(kt_map1, kt_map2)
-    all_po = merge_map(po_map1, po_map2)
-
-    return [itime1, itime2, kt_map1, kt_map2, all_kt, po_map1, po_map2, all_po]
-
-maps = analy_search("d:/s01.txt", "d:/s02.txt")
-ii = 0
-for imap in maps:
-    if type(imap) == type({}):
-        fname = "d:/%d.txt" % ii
-        ii += 1
-        print fname
-        write_map(fname, imap)
-    else:
-        print imap
+if __name__ == "__main__":
+    maps = analy_search_file("d:/s01.txt")
+    ii = 0
+    for imap in maps:
+        if type(imap) == type({}):
+            fname = "d:/%d.txt" % ii
+            ii += 1
+            print fname
+            write_map(fname, imap)
+        else:
+            print imap
 

@@ -11,4 +11,6 @@ encoding//game/shudu/shudu.py=utf-8
 encoding//learn/DRY.py=utf-8
 encoding//tool/img_zoom.py=utf-8
 encoding//use/keyfilter.py=utf-8
-encoding//use/search/statist.py=utf-8
+encoding//use/search/statist_mode.py=utf-8
+encoding//use/search/statist_parse.py=utf-8
+encoding//use/search/statist_tosql.py=utf-8
