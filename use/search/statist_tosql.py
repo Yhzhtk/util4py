@@ -13,12 +13,15 @@ def get_key_modes(host, date, keymap):
     keys.sort()
     keymodes = []
     for key in keys:
-        mode = key_statist()
-        mode.host = host
-        mode.keyword = key
-        mode.count = keymap[key]
-        mode.date = date
-        keymodes.append(mode)
+        try:
+            mode = key_statist()
+            mode.host = host
+            mode.keyword = key
+            mode.count = keymap[key]
+            mode.date = date
+            keymodes.append(mode)
+        except Exception, e:
+            print e
     return keymodes
 
 def get_position_modes(host, date, keymap):
@@ -26,27 +29,41 @@ def get_position_modes(host, date, keymap):
     keys.sort()
     keymodes = []
     for key in keys:
-        keysplit = key.split("_")
-        if len(keysplit) != 2:
-            continue
-        mode = position_statist()
-        mode.host = host
-        mode.pid = int(keysplit[0])
-        mode.adword = int(keysplit[1])
-        mode.count = keymap[key]
-        mode.date = date
-        keymodes.append(mode)
+        try:
+            keysplit = key.split("_")
+            if len(keysplit) != 2:
+                continue
+            mode = position_statist()
+            mode.host = host
+            mode.pid = int(keysplit[0])
+            mode.adword = int(keysplit[1])
+            mode.count = keymap[key]
+            mode.date = date
+            keymodes.append(mode)
+        except Exception, e:
+            print e
     return keymodes
 
-if __name__ == '__main__':
-    res = statist_parse.analy_search_file("d:/s01.txt")
-    date = res[0][0].split(" ")[0]
-    host = "l1"
-    keymodes = get_key_modes(host, date, res[1])
-    for mode in keymodes:
-        print mode.tosql()
-    
-    keymodes = get_position_modes(host, date, res[2])
-    for mode in keymodes:
-        print mode.tosql()
-    
+def generate_all_sql(host, content):
+    print "# start analy content"
+    sqls = []
+    try:
+        res = statist_parse.analy_search(content)
+        date = res[0][0].split(" ")[0]
+        print "# start generate key sql"
+        keymodes = get_key_modes(host, date, res[1])
+        for mode in keymodes:
+            sql = mode.tosql()
+            sqls.append(sql)
+            print sql
+        
+        print "# start generate position sql"
+        positionmodes = get_position_modes(host, date, res[2])
+        for mode in positionmodes:
+            sql = mode.tosql()
+            sqls.append(sql)
+            print sql
+    except Exception,e:
+        print "# Error: may not any search info", e
+    return sqls
+

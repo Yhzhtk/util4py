@@ -89,10 +89,7 @@ def analy_search(content):
 
 def analy_search_file(fname):
     content = open(fname, "r").read();
-    itime1 = parse_time(content)
-    kt_map1 = parse_kt_map(content)
-    po_map1 = parse_po_map(content)
-    return [itime1, kt_map1, po_map1]
+    return analy_search(content)
 
 def analy_all_search(content1, content2):
     res1 = analy_search(content1)
@@ -102,21 +99,8 @@ def analy_all_search(content1, content2):
     return [all_kt, all_po]
 
 def analy_all_search_file(fname1, fname2):
-    res1 = analy_search_file(fname1)
-    res2 = analy_search_file(fname2)
-    all_kt = merge_map(res1[1], res2[1])
-    all_po = merge_map(res1[2], res2[2])
-    return [all_kt, all_po]
+    content1 = open(fname1, "r").read();
+    content2 = open(fname2, "r").read();
+    return analy_all_search(content1, content2)
 
-if __name__ == "__main__":
-    maps = analy_search_file("d:/s01.txt")
-    ii = 0
-    for imap in maps:
-        if type(imap) == type({}):
-            fname = "d:/%d.txt" % ii
-            ii += 1
-            print fname
-            write_map(fname, imap)
-        else:
-            print imap
 
