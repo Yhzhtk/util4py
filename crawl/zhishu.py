@@ -52,7 +52,7 @@ def parse_key_info(content):
     print len(result)
     return result
 
-ofile = open("d:/out.csv", "w")
+ofile = open("d:/out.csv", "a")
 ifile = open("d:/key.txt", "r")
 lines = ifile.readlines()
 ifile.close()
