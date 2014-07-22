@@ -1,4 +1,4 @@
-# coding=gbk
+# coding=utf-8
 '''
 压缩图片，相机图片太大了，批量压缩用
 需要依赖PIL包：http://www.pythonware.com/products/pil/

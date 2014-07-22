@@ -1,3 +1,5 @@
+# coding=utf-8
+
 # Python 装饰器实现DRY(不重复代码)原则
 
 def increment(f):
