@@ -33,7 +33,9 @@ def analy_and_refresh(search_host):
     # write sqls to file
     sqls = statist_tosql.generate_all_sql(search_host, content)
     ofile = open("%s.sql" % bname, "w")
-    ofile.writelines(sqls)
+    for sql in sqls:
+        ofile.write(sql)
+        ofile.write("\n")
     print "# write sqls to %s, total %d" % (ofile.name, len(sqls))
     ofile.close()
     
