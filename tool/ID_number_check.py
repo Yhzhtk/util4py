@@ -2,6 +2,8 @@
 '''
 Created on 2014年7月22日
 身份证校验
+
+可访问 http://codepad.org/lGqMr6Xv，修改身份证号，在线运行校验你的身份证号
 @author: gudh
 '''
 
