@@ -5,7 +5,7 @@ Created on 2014年7月22日
 @author: gudh
 '''
 
-import urllib2,time
+import urllib2,time,sys,os
 import statist_tosql
 
 save_path = "d:/statist"
@@ -44,9 +44,15 @@ def analy_and_refresh(search_host):
     print "#", content
 
 if __name__ == '__main__':
-    for host in search_hosts:
-        analy_and_refresh(host)
+    if len(sys.argv) == 2:
+        save_path = sys.argv[1]
+        if os.path.exists(save_path):
+            for host in search_hosts:
+                print "# start analy host ", host
+                analy_and_refresh(host)
+            print "##### end analy ", time.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            print "# Warning: please give a right path param, the path %s is not exist" % save_path
+    else:
+        print "# Warning: please give a path param, use for save the sql file"
 
-
-        
-        
