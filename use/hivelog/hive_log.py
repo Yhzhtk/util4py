@@ -8,7 +8,7 @@ Created on 2014年8月15日
 import subprocess,sys,os
 
 # 基础的sql语句
-base_day_sql = "select %s,count(*) from %s where log_date = $s and %s in (%%s) group by %s"
+base_day_sql = "select %s,count(*) from %s where log_date = %s and %s in (%%s) group by %s"
 base_all_sql = "select %s,count(*) from %s where %s in (%%s) group by %s"
 
 # search 表相关统计
