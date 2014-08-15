@@ -5,10 +5,11 @@ Created on 2014年8月15日
 @author: gudh
 '''
 
-import subprocess
+import subprocess,sys,os
 
 # 基础的sql语句
-base_sql = "select %s,count(*) from %s where %s in (%%s) group by %s"
+base_day_sql = "select %s,count(*) from %s where log_date = $s and %s in (%%s) group by %s"
+base_all_sql = "select %s,count(*) from %s where %s in (%%s) group by %s"
 
 # search 表相关统计
 s_spc = [('search', 'spc', '搜索类型'), [('0', '公司职位'), ('1', '职位'), ('2', '职位'), ('3', '公司'), ('4', '公司'), ('5', '城市'), ('', '无')]]
@@ -26,16 +27,20 @@ s_pn.append(('', '无'))
 # position 表相关统计
 p_source = [('view_position', 'current_source', '职位查看来源'), [('profile_rec', '个人简历页'), ('home_hot', '首页热门'), ('home_latest', '首页最新'), ('home_rec', '首页推荐'), ('rec', '推荐页'), ('company_list', '公司列表页'), ('job_rec', '猜你喜欢'), ('pl', '公司职位列表'), ('position_rec', '相似推荐'), ('company', '公司页'), ('', '无'), ('search', '搜索页')]]
 
-def generate_sql(words):
+def generate_sql(words, log_date):
     tinfo = words[0]
     params = words[1]
-    global base_sql
-    sql = base_sql % (tinfo[1], tinfo[0], tinfo[1], tinfo[1])
+    global base_day_sql, base_all_sql
+    sql = ''
+    if log_date == '0':
+        sql = base_all_sql % (tinfo[1], tinfo[0], tinfo[1], tinfo[1])
+    else:
+        sql = base_day_sql % (tinfo[1], tinfo[0], log_date, tinfo[1], tinfo[1])
     sql = sql %  ','.join(["'%s'" % word[0] for word in params])
     return sql
 
-def execute_hive(para):
-    sql = generate_sql(para)
+def execute_hive(para, log_date, to_file):
+    sql = generate_sql(para, log_date)
     hive_sql = '''hive -e "%s"''' % sql
     print 'Execute hive sql:', hive_sql
     result = subprocess.Popen(hive_sql, shell=True, stdout=subprocess.PIPE).stdout.read()
@@ -61,31 +66,44 @@ def execute_hive(para):
     value = [str(val) for val in value]
     
     # 打印结果
-    print "统计分析 %s 信息" % para[0][2]
-    print '\t'.join(head)
-    print '\t'.join(value)
-    print '\t'.join(ratio)
-    print ''
-    print ''
+    tfile = open(to_file, "a")
+    rstr = "%s 统计" % para[0][2] + "\n"
+    rstr += '\t'.join(head) + "\n"
+    rstr +=  '\t'.join(value) + "\n"
+    rstr +=  '\t'.join(ratio) + "\n"
+    rstr +=  '\n'
+    rstr +=  '\n'
+    print rstr
+    tfile.write(rstr)
+    tfile.close()
     
     
 if __name__ == '__main__':
-#     print generate_sql(s_spc)
-#     print generate_sql(s_label)
-#     print generate_sql(s_salary)
-#     print generate_sql(s_experience)
-#     print generate_sql(s_educational)
-#     print generate_sql(s_nature)
-#     print generate_sql(s_time)
-#     print generate_sql(s_pn)
-#     print generate_sql(p_source)
-    execute_hive(s_spc)
-    execute_hive(s_label)
-    execute_hive(s_salary)
-    execute_hive(s_experience)
-    execute_hive(s_educational)
-    execute_hive(s_nature)
-    execute_hive(s_time)
-    execute_hive(s_pn)
-    execute_hive(p_source)
+    if len(sys.argv) < 3:
+        print '请输入两个个参数，第一个表示要统计的日期，如20140808, 当其为0时，则统计所有日期数据的和；第二个参数表示结果输出的文件名'
+        sys.exit(0)
+    log_date = sys.argv[1]
+    to_file = sys.argv[2]
+    if not os.path.exists(os.path.dirname(to_file)):
+        print '文件路径 %s 不存在，请重新输入' % to_file
+        sys.exit(0)
+    
+#     print generate_sql(s_spc, log_date)
+#     print generate_sql(s_label, log_date)
+#     print generate_sql(s_salary, log_date)
+#     print generate_sql(s_experience, log_date)
+#     print generate_sql(s_educational, log_date)
+#     print generate_sql(s_nature, log_date)
+#     print generate_sql(s_time, log_date)
+#     print generate_sql(s_pn, log_date)
+#     print generate_sql(p_source, log_date)
+    execute_hive(s_spc, log_date, to_file)
+    execute_hive(s_label, log_date, to_file)
+    execute_hive(s_salary, log_date, to_file)
+    execute_hive(s_experience, log_date, to_file)
+    execute_hive(s_educational, log_date, to_file)
+    execute_hive(s_nature, log_date, to_file)
+    execute_hive(s_time, log_date, to_file)
+    execute_hive(s_pn, log_date, to_file)
+    execute_hive(p_source, log_date, to_file)
 
