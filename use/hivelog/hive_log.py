@@ -12,7 +12,7 @@ base_day_sql = "select %s,count(*) from %s where log_date = %s and %s in (%%s) g
 base_all_sql = "select %s,count(*) from %s where %s in (%%s) group by %s"
 
 # search 表相关统计
-s_spc = [('search', 'spc', '搜索类型'), [('0', '公司职位'), ('1', '职位'), ('2', '职位'), ('3', '公司'), ('4', '公司'), ('5', '城市'), ('', '无')]]
+s_spc = [('search', 'spc', '搜索类型'), [('0', '联合搜索(0)'), ('1', '职位(1)'), ('2', '职位(2)'), ('3', '公司(3)'), ('4', '公司(4)'), ('5', '城市(5)'), ('', '无(空)')]]
 s_label = [('search', 'label_words', '搜索来源'), [('sug', 'Suggest词'), ('hot', '热门搜索词'), ('label', '左侧标签词'), ('label,label', '加筛选条件'), ('', '用户输入')]]
 s_salary = [('search', 'monthly_salary', '薪资点击'), [('50k以上', '50k以上'), ('2k-5k', '2k-5k'), ('25k-50k', '25k-50k'), ('5k-10k', '5k-10k'), ('10k-15k', '10k-15k'), ('15k-25k', '15k-25k'), ('', '无')]]
 s_experience = [('search', 'working_experience', '工作经验点击'), [('不限', '不限'), ('应届毕业生', '应届毕业生'), ('1年以下', '1年以下'), ('1-3年', '1-3年'), ('3-5年', '3-5年'), ('5-10年', '5-10年'), ('10年以上', '10年以上'), ('', '无')]]
@@ -58,6 +58,11 @@ def execute_hive(para, log_date, to_file):
                 value.append(int(res[1]))
                 total += int(res[1])
                 break
+        else:
+            # 补齐格式
+            head.append(word[1])
+            value.append(0)
+            total += 0
     head.append("总数")
     value.append(total)
     # 计算占比
