@@ -19,8 +19,9 @@ s_educational = [('search', 'educational_background', '教育背景点击'), [('
 s_nature = [('search', 'nature_of_work', '工作性质点击'), [('全职', '全职'), ('兼职', '兼职'), ('实习', '实习'), ('', '无')]]
 s_time = [('search', 'publish_time', '时间筛选点击'), [('今天', '今天'), ('3天内', '3天内'), ('一周内', '一周内'), ('一月内', '一月内'), ('', '无')]]
 # 页码自动生成0到30页
-s_pn = [('search', 'pn', '翻页统计'), [('', '无')]]
-s_pn[1].extend([(i, '第%d页' % i) for i in range(31)])
+s_pn = [('search', 'pn', '翻页统计'), []]
+s_pn[1].extend([(str(i), '第%d页' % i) for i in range(31)])
+s_pn.append(('', '无'))
 
 # position 表相关统计
 p_source = [('view_position', 'current_source', '职位查看来源'), [('profile_rec', '个人简历页'), ('home_hot', '首页热门'), ('home_latest', '首页最新'), ('home_rec', '首页推荐'), ('rec', '推荐页'), ('company_list', '公司列表页'), ('job_rec', '猜你喜欢'), ('pl', '公司职位列表'), ('position_rec', '相似推荐'), ('company', '公司页'), ('', '无'), ('search', '搜索页')]]
@@ -45,8 +46,8 @@ def execute_hive(para):
     value = []
     ratio = []
     total = 0
-    for res in ress:
-        for word in para[1]:
+    for word in para[1]:
+        for res in ress:
             if res[0] == word[0]:
                 head.append(word[1])
                 value.append(int(res[1]))
