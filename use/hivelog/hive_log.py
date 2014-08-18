@@ -40,7 +40,7 @@ def generate_sql(words, log_date):
     return sql
 
 def export_sql(para, values, log_date):
-    sql = "insert into `%s` (%s, `total`, `date`) values (%s, %s)"
+    sql = "insert into `%s` (%s, `total`, `date`) values (%s, %s);"
     table_name = para[0][3]
     fields = ', '.join(["`%s`" % v[2] for v in para[1]])
     values = ','.join(values)
