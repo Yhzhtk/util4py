@@ -39,14 +39,28 @@ def generate_sql(words, log_date):
     sql = sql %  ','.join(["'%s'" % word[0] for word in params])
     return sql
 
-def export_sql(para, values):
-    sql = "insert into %s (%s) values (%s)"
+def export_sql(para, values, log_date):
+    sql = "insert into `%s` (%s, `total`, `date`) values (%s, %s)"
     table_name = para[0][3]
-    fields = ','.join([ v[2] for v in para[1]])
+    fields = ', '.join(["`%s`" % v[2] for v in para[1]])
     values = ','.join(values)
-    sql = sql % (table_name, fields, values)
+    sql = sql % (table_name, fields, values, log_date)
     return sql
     
+def create_sql(para):
+    sql = "create table %s (\n"
+    sql += " `id` int(64) NOT NULL AUTO_INCREMENT COMMENT 'id,自增',\n"
+    sql += "%s,\n"
+    sql += " `total` int(11) DEFAULT '0' COMMENT '总数',\n"
+    sql += " `date` date DEFAULT NULL COMMENT '统计日期',\n"
+    sql += " PRIMARY KEY (`id`)"
+    sql += ") ENGINE=InnoDB DEFAULT CHARSET=utf8;\n"
+    table_name = para[0][3]
+    fields = [" `%s` int(11) DEFAULT 0 COMMENT '%s'" % (v[2], v[1]) for v in para[1]]
+    fieldstr = ',\n'.join(fields)
+    sql = sql % (table_name, fieldstr)
+    return sql
+
 def execute_hive(para, log_date, to_file):
     sql = generate_sql(para, log_date)
     hive_sql = '''hive -e "%s"''' % sql
@@ -80,17 +94,28 @@ def execute_hive(para, log_date, to_file):
     
     # 打印结果
     tfile = open(to_file, "a")
-    rstr = "%s 统计" % para[0][2] + "\n"
-    rstr += '\t'.join(head) + "\n"
-    rstr +=  '\t'.join(value) + "\n"
-    rstr +=  '\t'.join(ratio) + "\n"
+    rstr = "#%s 统计" % para[0][2] + "\n"
+    rstr += "#" + '\t'.join(head) + "\n"
+    rstr += "#" + '\t'.join(value) + "\n"
+    rstr += "#" + '\t'.join(ratio) + "\n"
     rstr +=  '\n'
-    rstr += "insert into %s values (%s)" % (para.__name__, ",".join(value))
+    rstr += export_sql(para, value, log_date) + "\n"
     rstr +=  '\n'
     rstr +=  '\n'
     print rstr
     tfile.write(rstr)
     tfile.close()
+    
+def create_all_table_sql():
+    print create_sql(s_spc)
+    print create_sql(s_label)
+    print create_sql(s_salary)
+    print create_sql(s_experience)
+    print create_sql(s_educational)
+    print create_sql(s_nature)
+    print create_sql(s_time)
+    print create_sql(s_pn)
+    print create_sql(p_source)
     
     
 if __name__ == '__main__':
