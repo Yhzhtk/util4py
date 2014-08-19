@@ -7,9 +7,10 @@ Created on 2014年8月15日
 
 import subprocess,sys,os
 
+ua_filter = " ua not rlike '^.*(HttpClient|Jakarta|scrapy|bot|spider|wget).*$' "
 # 基础的sql语句
-base_day_sql = "select %s,count(*) from %s where log_date = %s and %s in (%%s) group by %s"
-base_all_sql = "select %s,count(*) from %s where %s in (%%s) group by %s"
+base_day_sql = "select %s,count(*) from %s where log_date = %s and " + ua_filter + " and %s in (%%s) group by %s"
+base_all_sql = "select %s,count(*) from %s where " + ua_filter + " and %s in (%%s) group by %s"
 
 # search 表相关统计
 s_spc = [('search', 'spc', '搜索类型', 's_spc'), [('0', '联合搜索(0)', 'spc0'), ('1', '职位(1)', 'spc1'), ('2', '职位(2)', 'spc2'), ('3', '公司(3)', 'spc3'), ('4', '公司(4)', 'spc4'), ('5', '城市(5)', 'spc5'), ('', '无(空)', 'empty')]]
@@ -48,7 +49,8 @@ def export_sql(para, values, log_date):
     return sql
     
 def create_sql(para):
-    sql = "create table %s (\n"
+    sql = "drop table if exists %s;\n"
+    sql += "create table %s (\n"
     sql += " `id` int(64) NOT NULL AUTO_INCREMENT COMMENT 'id,自增',\n"
     sql += "%s,\n"
     sql += " `total` int(11) DEFAULT '0' COMMENT '总数',\n"
@@ -58,7 +60,7 @@ def create_sql(para):
     table_name = para[0][3]
     fields = [" `%s` int(11) DEFAULT 0 COMMENT '%s'" % (v[2], v[1]) for v in para[1]]
     fieldstr = ',\n'.join(fields)
-    sql = sql % (table_name, fieldstr)
+    sql = sql % (table_name, table_name, fieldstr)
     return sql
 
 def execute_hive(para, log_date, to_file):
@@ -94,10 +96,10 @@ def execute_hive(para, log_date, to_file):
     
     # 打印结果
     tfile = open(to_file, "a")
-    rstr = "#%s 统计" % para[0][2] + "\n"
-    rstr += "#" + '\t'.join(head) + "\n"
-    rstr += "#" + '\t'.join(value) + "\n"
-    rstr += "#" + '\t'.join(ratio) + "\n"
+    rstr = "#\t%s 统计" % para[0][2] + "\n"
+    rstr += "#\t" + '\t'.join(head) + "\n"
+    rstr += "#\t" + '\t'.join(value) + "\n"
+    rstr += "#\t" + '\t'.join(ratio) + "\n"
     rstr +=  '\n'
     rstr += export_sql(para, value, log_date) + "\n"
     rstr +=  '\n'
