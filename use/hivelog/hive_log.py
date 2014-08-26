@@ -5,7 +5,7 @@ Created on 2014年8月15日
 @author: gudh
 '''
 
-import subprocess,sys,os
+import subprocess,sys,os,traceback
 
 ua_filter = " ua not rlike '^.*(HttpClient|Jakarta|scrapy|bot|spider|wget).*$' "
 # 基础的sql语句
@@ -27,6 +27,24 @@ s_pn[1].append(('', '无', 'empty'))
 
 # position 表相关统计
 p_source = [('view_position', 'current_source', '职位查看来源', 'p_source'), [('profile_rec', '个人简历页', 'profile_rec'), ('home_hot', '首页热门', 'home_hot'), ('home_latest', '首页最新', 'home_latest'), ('home_rec', '首页推荐', 'home_rec'), ('rec', '推荐页', 'rec'), ('company_list', '公司列表页', 'company_list'), ('job_rec', '猜你喜欢', 'job_rec'), ('pl', '公司职位列表', 'pl'), ('position_rec', '相似推荐', 'position_rec'), ('company', '公司页', 'company'), ('', '无', 'empty'), ('search', '搜索页', 'search')]]
+
+# 来源为空在判断refer分类
+p_empty_refer = '''
+select *,count(*),
+ case 
+  when refer_domain like '%lagou.com%' then 'lagou' 
+  when refer_domain = '' then 'empty' 
+ else 'other' 
+ end
+from view_position 
+where current_source = ''
+group by 
+ case 
+  when refer_domain like '%lagou.com%' then 'lagou' 
+  when refer_domain = '' then 'empty' 
+ else 'other' 
+ end;
+'''
 
 def generate_sql(words, log_date):
     tinfo = words[0]
@@ -64,49 +82,53 @@ def create_sql(para):
     return sql
 
 def execute_hive(para, log_date, to_file):
-    sql = generate_sql(para, log_date)
-    hive_sql = '''hive -e "%s"''' % sql
-    print 'Execute hive sql:', hive_sql
-    result = subprocess.Popen(hive_sql, shell=True, stdout=subprocess.PIPE).stdout.read()
-    print result
-    print ''
-    ress = [res.split("\t") for res in result.split("\n") if res]
-    head = []
-    value = []
-    ratio = []
-    total = 0
-    for word in para[1]:
-        for res in ress:
-            if res[0] == word[0]:
+    try:
+        sql = generate_sql(para, log_date)
+        hive_sql = '''hive -hiveconf hive.root.logger=DEBUG,console -e "%s"''' % sql
+        print 'Execute hive sql:', hive_sql
+        result = subprocess.Popen(hive_sql, shell=True, stdout=subprocess.PIPE).stdout.read()
+        print result
+        print ''
+        ress = [res.split("\t") for res in result.split("\n") if res]
+        head = []
+        value = []
+        ratio = []
+        total = 0
+        for word in para[1]:
+            for res in ress:
+                if res[0] == word[0]:
+                    head.append(word[1])
+                    value.append(int(res[1]))
+                    total += int(res[1])
+                    break
+            else:
+                # 补齐格式
                 head.append(word[1])
-                value.append(int(res[1]))
-                total += int(res[1])
-                break
-        else:
-            # 补齐格式
-            head.append(word[1])
-            value.append(0)
-            total += 0
-    head.append("总数")
-    value.append(total)
-    # 计算占比
-    ratio = ['%.2f' % (val * 100 / float(total)) + "%"  for val in value]
-    # 转成字符串
-    value = [str(val) for val in value]
-    
-    # 打印结果
-    tfile = open(to_file, "a")
-    rstr = "#\t%s 统计" % para[0][2] + "\n"
-    rstr += "#\t" + '\t'.join(head) + "\n"
-    rstr += "#\t" + '\t'.join(value) + "\n"
-    rstr += "#\t" + '\t'.join(ratio) + "\n"
-    rstr +=  '\n'
-    rstr += export_sql(para, value, log_date) + "\n"
-    rstr +=  '\n'
-    rstr +=  '\n'
-    print rstr
-    tfile.write(rstr)
-    tfile.close()
+                value.append(0)
+                total += 0
+        head.append("总数")
+        value.append(total)
+        # 计算占比
+        ratio = ['%.2f' % (val * 100 / float(total)) + "%"  for val in value]
+        # 转成字符串
+        value = [str(val) for val in value]
+        
+        # 打印结果
+        tfile = open(to_file, "a")
+        rstr = "#\t%s 统计" % para[0][2] + "\n"
+        rstr += "#\t" + '\t'.join(head) + "\n"
+        rstr += "#\t" + '\t'.join(value) + "\n"
+        rstr += "#\t" + '\t'.join(ratio) + "\n"
+        rstr +=  '\n'
+        rstr += export_sql(para, value, log_date) + "\n"
+        rstr +=  '\n'
+        rstr +=  '\n'
+        print rstr
+        tfile.write(rstr)
+        tfile.close()
+    except Exception, e:
+        print e
+        print traceback.print_exc()
     
 def create_all_table_sql():
     print create_sql(s_spc)
