@@ -22,11 +22,17 @@ def regex_one(regex, content, group=1):
     match = pattern.search(content)
     return match.group(group)
 
-def regex_all(regex, content, group=1):
+def regex_top100(regex, content, group=1):
     '''正则查找所有匹配返回指定分组'''
     pattern = re.compile(regex, re.DOTALL)
     matchs = pattern.finditer(content)
-    return [match.group(group) for match in matchs if match]
+    res = []
+    for match in matchs:
+        if match:
+            res.append(match.group(group))
+            if len(res) >= 100:
+                break
+    return res
 
 
 def get_parse_pname(key):
@@ -36,12 +42,13 @@ def get_parse_pname(key):
     table_str = regex_one(table_reg, content)
     
     pname_reg = "<tr>.*?<a.*?>(.*?)</a>"
-    pnames = regex_all(pname_reg, table_str)
+    pnames = regex_top100(pname_reg, table_str)
     return pnames
 
 def get_sorted(pnames):
     nmap = {}
     for name in pnames:
+        name = name.lower()
         if name in nmap:
             nmap[name] = nmap[name] + 1
         else:
@@ -55,9 +62,12 @@ def get_sorted(pnames):
 def get_search_res_sorted(key):
     r = get_parse_pname(key)
     res = get_sorted(r)
-    ss = "===========【%s】==========\n" % key
+    ss = "【%s】\t" % key
     for rr in res:
-        ss += "%s\t%s\n" % (rr[0], rr[1])
+        ss += rr[0] + "\t"
+    ss += "\n【%s】\t" % key
+    for rr in res:
+        ss += "%d\t" % rr[1]
     ss += "\n"
     return ss
 
